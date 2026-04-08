@@ -633,7 +633,7 @@ function AppContent() {
               >
                 <div className="aspect-square rounded-3xl overflow-hidden border border-navy-800 shadow-2xl">
                   <img 
-                    src="https://picsum.photos/seed/engineering/800/800" 
+                    src="/Nexus.png" 
                     alt="Engineering Lab" 
                     className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-700"
                     referrerPolicy="no-referrer"
