@@ -22,10 +22,17 @@ service cloud.firestore {
     // ===============================================================
     
     function isAuthenticated() {
-      return request.auth != null && 
-             request.auth.token.email == 'kondanarendra123@gmail.com' && 
-             request.auth.token.email_verified == true;
-    }
+  // Define a list of allowed emails
+  let allowedEmails = [
+    'kondanarendra123@gmail.com', 
+    'colleague@gmail.com', 
+    'partner@gmail.com'
+  ];
+  
+  return request.auth != null && 
+         request.auth.token.email in allowedEmails && 
+         request.auth.token.email_verified == true;
+}
 
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
