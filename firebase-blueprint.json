@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user profile information for EEE students at GNITC.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the user."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the user."
+        },
+        "rollNumber": {
+          "type": "string",
+          "description": "GNITC Roll Number."
+        },
+        "year": {
+          "type": "string",
+          "enum": ["1st Year", "2nd Year", "3rd Year", "4th Year"],
+          "description": "Current academic year."
+        },
+        "bio": {
+          "type": "string",
+          "description": "Short biography or interests."
+        }
+      },
+      "required": ["name", "email"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document indexed by Firebase Auth UID."
+    }
+  }
+}

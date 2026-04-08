@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (Firebase Auth UID)
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - email: string (required, valid format)
+    //   - rollNumber: string (optional, 1-20 chars)
+    //   - year: string (optional, enum: 1st Year, 2nd Year, 3rd Year, 4th Year)
+    //   - bio: string (optional, 0-500 chars)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null && 
+             request.auth.token.email == 'kondanarendra123@gmail.com' && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'email']) &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             isValidEmail(data.email) &&
+             (!('rollNumber' in data) || (data.rollNumber is string && data.rollNumber.size() <= 20)) &&
+             (!('year' in data) || (data.year in ['', '1st Year', '2nd Year', '3rd Year', '4th Year'])) &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() <= 500));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can only read their own profile
+      allow read: if isOwner(userId);
+      
+      // Users can only create/update their own profile with valid data
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    request.resource.data.email == resource.data.email; // Email is immutable
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
